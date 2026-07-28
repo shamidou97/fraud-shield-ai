@@ -47,3 +47,24 @@ def add_spending_profile(df: pd.DataFrame) -> pd.DataFrame:
     df = df.merge(profile, on="cc_num", how="left")
     df["amt_zscore"] = (df["amt"] - df["cc_avg_amt"]) / df["cc_std_amt"].replace(0, np.nan)
     return df
+
+def add_category_amt_zscore(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Per-category amount z-score: how unusual is this amount relative to
+    its own merchant category's typical range, not the dataset overall.
+
+    Corrects for the fact that raw `amt` means something different per
+    category (e.g. $300 is unremarkable for grocery_pos but very unusual
+    for gas_transport) -- the global amt_zscore/amt alone can't capture this.
+    """
+    df = df.copy()
+    category_stats = df.groupby("category")["amt"].agg(["mean", "std"])
+    df = df.merge(
+        category_stats.rename(columns={"mean": "cat_avg_amt", "std": "cat_std_amt"}),
+        on="category",
+        how="left",
+    )
+    df["amt_category_zscore"] = (
+        (df["amt"] - df["cat_avg_amt"]) / df["cat_std_amt"].replace(0, np.nan)
+    )
+    return df
