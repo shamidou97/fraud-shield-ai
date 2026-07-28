@@ -26,5 +26,5 @@ def print_report(y_true, y_pred) -> None:
 
 def explain_model(model, X_sample):
     """Returns SHAP values for interpretability reporting."""
-    explainer = shap.Explainer(model, X_sample)
+    explainer = shap.TreeExplainer(model, feature_perturbation="tree_path_dependent")
     return explainer(X_sample)
