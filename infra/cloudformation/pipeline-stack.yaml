@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Fraud Shield AI - supporting resources for the SageMaker Pipeline
+  (S3 bucket, Feature Store prefix, Model Package Group).
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: S3 bucket for raw/processed data and pipeline artifacts
+
+Resources:
+  FraudShieldBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+
+  FraudShieldModelPackageGroup:
+    Type: AWS::SageMaker::ModelPackageGroup
+    Properties:
+      ModelPackageGroupName: FraudShieldModelPackageGroup
+      ModelPackageGroupDescription: Hybrid ensemble fraud detection models
+
+Outputs:
+  BucketNameOutput:
+    Value: !Ref FraudShieldBucket
+  ModelPackageGroupOutput:
+    Value: !Ref FraudShieldModelPackageGroup
